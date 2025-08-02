@@ -666,13 +666,103 @@ This fits comfortably within a 1 second time limit.
 - Decide if that meets your time limit—if not, choose a more efficient algorithm!
 
 
+# Space Complexity
+Space complexity measures how much extra memory an algorithm uses relative to its input size—beyond the space needed to store the inputs themselves. Just as time complexity tells you how the running time grows with input, space complexity tells you how your memory footprint grows.
 
+1. Why Learn Space Complexity
+- - Predict resource needs: In memory-constrained environments (embedded devices, mobile apps, serverless functions), knowing your algorithm’s memory usage is critical.
 
+  - Avoid crashes: Excessive allocations can lead to out-of-memory errors.
 
+  - Make trade-offs: Sometimes you’ll trade time for space (e.g. memoization) or space for time (e.g. precomputed lookup tables). Understanding both helps you choose wisely.
 
+2. What Is Space Complexity
+  - Input space: Memory for the inputs themselves (often ignored when comparing algorithms on the same inputs).
 
+  - Auxiliary space: Extra memory your algorithm allocates (variables, data structures, recursion stack).
 
+  - Notation: We use Big-O (O-notation) to express how auxiliary space grows as a function of input size n.
 
+3. How to Calculate Space Complexity
+  1. Identify all extra data structures your algorithm creates whose size depends on n (arrays, hash tables, call stacks).
+  2. Count their sizes in terms of n.
+  3. Ignore constants and lower-order terms (e.g. O(2n + 5) → O(n)).
+  4. Report the dominant term in Big-O.
 
+4. Examples
+  4.1 Constant Space: O(1)
+Only a fixed number of extra variables, no matter how big n is.
+```c++
+int findMax(int arr[], int n) {
+    int maxVal = arr[0];         // one variable
+    for (int i = 1; i < n; i++) {
+        if (arr[i] > maxVal) {
+            maxVal = arr[i];     // reuses the same variable
+        }
+    }
+    return maxVal;
+}
+```
+- Auxiliary: maxVal, loop counter i → O(1) extra space.
+- Input array itself isn’t counted in auxiliary space.
+
+4.2 Linear Space: O(n)
+
+You allocate a data structure proportional to n.
+
+```c++
+vector<int> copyArray(int arr[], int n) {
+    vector<int> copy;
+    copy.reserve(n);             // reserve n slots
+    for (int i = 0; i < n; i++) {
+        copy.push_back(arr[i]);
+    }
+    return copy;
+}
+```
+
+- Auxiliary: the copy vector of size n → O(n).
+
+4.3 Quadratic Space: O(n²)
+Storing data in a 2D structure that grows with n×n.
+
+```c++
+vector<vector<int>> createMultiplicationTable(int n) {
+    vector<vector<int>> table(n, vector<int>(n));
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            table[i][j] = i * j;
+        }
+    }
+    return table;
+}
+```
+- Auxiliary: an n×n table → O(n²).
+
+4.4 Recursion Stack Space
+Even if you don’t allocate an explicit data structure, recursive calls consume memory on the call stack.
+
+```c++
+int fibonacci(int n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+```
+- Depth of calls: up to n → O(n) stack frames.
+- Combined with no other allocations, total auxiliary space = O(n).
+
+5. Space-Time Trade-Offs
+- Memoization turns exponential-time recursion into O(n) by storing results: uses O(n) extra space.
+- In-place algorithms (e.g., in-place quicksort) reduce space to O(log n) stack by reordering within the input array.
+- Precomputed tables (lookup tables) speed up queries at the cost of O(n) or more space.
+
+### In a Nutshell
+
+- O(1): fixed number of extra variables
+- O(n): one extra array, vector, or recursion depth proportional to n
+- O(n²): two-dimensional data
+- Recursive stack counts toward space.
+
+Always balance memory and speed: choosing the right data structures and algorithmic techniques ensures your software runs both fast and lean as inputs grow.
 
 
