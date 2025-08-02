@@ -538,13 +538,13 @@ Linearithmic complexity sits at the sweet spot between simple linear scans and m
 
 ### Comparison of Operation Counts for n = 1000
 
-Complexity	            Big-O	                  Approx. Work (n = 1000)
-Constant	              O(1)	                        1
-Logarithmic	            O(log n)	                    log₂(1000) ≈ 10
-Square-Root	            O(√n)	                        √1000 ≈ 32
-Linear	                O(n)	                        1000
-Linearithmic	          O(n log n)	                  1000·10 = 10000
-Quadratic	              O(n²)	                        1000² = 1000000
+Complexity	  Big-O	    Approx. Work (n = 1000)	      How to Identify
+Constant	    O(1)	        1	                    Single operation (e.g. arr[0], simple math)
+Logarithmic	  O(log n)	    ≈ 10	                Divide-and-conquer or halving loops (e.g. binary search, for`(i=1; i<n; i*=2)`)
+Square-Root	  O(√n)	        ≈ 32	                Loop up to √n `(for(i=1; i*i<=n; i++))`
+Linear	      O(n)	        1000	                Single pass over data `(for(i=0; i<n; i++))`
+Linearithmic	O(n log n)	  10000	                Linear work inside a log loop (e.g. merge sort, sorting)
+Quadratic	    O(n²)	        1000000	              Nested loops over n `(for(i=0;i<n;i++) for(j=0;j<n;j++))`
 
 ### Ordering from “Fastest” to “Slowest” (for n = 1000)
 
