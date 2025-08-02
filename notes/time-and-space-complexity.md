@@ -241,3 +241,251 @@ void divideLoop(int n) {
 - Logarithmic loops jump in chunks (× or ÷ each time).
 - They need about log n steps to finish.
 - That’s much faster than doing n steps when n is big.
+
+# Square-Root Time Complexity
+
+Sometimes an algorithm doesn’t run in linear time (O(n)) or logarithmic time (O(log n))—it runs in “square-root time,” written O(√n). You’ll see this pattern whenever you only need to explore up to the square root of your input size, rather than the whole thing.
+
+1. When √n shows up
+- √n grows more slowly than n but faster than log n.
+- It arises whenever you can exploit a mathematical property—like symmetry around √n—to cut your work dramatically.
+- Common example: finding all divisors of an integer.
+
+2. Brute-force vs. √n optimization
+
+2.1 Brute-force search (O(n))
+
+To list all divisors of n, you could check every integer from 1 through n:
+
+```c++
+vector<int> divisors;
+for (int i = 1; i <= n; i++) {
+    if (n % i == 0) {
+        divisors.push_back(i);
+    }
+}
+```
+
+- Steps: n checks → O(n)
+
+- Problem: If n = 10^9, that’s a billion mod operations—too slow.
+
+2.2 √n search (O(√n))
+
+Observe that divisors come in pairs `(i, n/i)`. Once you pass √n, you’re just re-visiting the other half of the pairs. So you only need to loop while `i * i <= n`:
+
+```c++
+vector<int> divisors;
+for (int i = 1; i * i <= n; i++) {
+    if (n % i == 0) {
+        divisors.push_back(i);
+        if (i != n / i)            // avoid double-counting perfect square root
+            divisors.push_back(n / i);
+    }
+}
+sort(divisors.begin(), divisors.end());
+```
+- Condition: `i * i <= n`
+- Why it works:
+  - If `i` ≤ √n, then `n/i` ≥ √n.
+  - Every divisor > √n is paired with one < √n.
+
+- Steps: about √n checks → O(√n)
+
+3. Example in action
+Let n = 36:
+
+- √36 = 6, so the loop runs i = 1,2,3,4,5,6 (six iterations).
+- On each iteration we check:
+  - i=1 → divisors 1 and 36
+  - i=2 → divisors 2 and 18
+  - i=3 → divisors 3 and 12
+  - i=4 → divisors 4 and 9
+  - i=5 → no new divisor
+  - i=6 → divisors 6 (since 6 == 36/6, we add only once)
+
+- Total checks: 6 instead of 36.
+
+4. Calculating √n complexity
+- Identify that your work pairs off beyond √n.
+- Switch your loop to `for (i = 1; i * i <= n; i++)`.
+- Count steps: you’ll execute ~√n iterations.
+- Report: O(√n) in worst-case.
+
+5. Why √n matters
+
+- Scales to large inputs: If n = 10¹², √n = 10⁶—one million checks vs. a trillion.
+- Common in number-theory tasks: primality tests, divisor sums, factorization steps.
+- Practical speed-ups: Brute-force becomes usable for much bigger n.
+
+6. Five Real-World Use Cases of O(√n) Algorithms
+Here are five practical scenarios where you only need to do about √n work—turning otherwise huge scans into something much faster:
+
+1. Primality Testing with Trial Division
+
+- To check if a number `n` is prime, you only need to test divisibility by integers up to √n.
+- Once you reach any divisor ≤ √n, you’ve proven compositeness; if none divide, `n` must be prime.
+- This is exactly the same `for (i * i <= n; i++)` pattern we saw for divisors—but you stop as soon as you find one.
+
+2. Divisor Enumeration
+
+- As shown earlier, listing all factors of n can be done in O(√n) by pairing each small divisor `i` (≤√n) with its counterpart `n/i`.
+
+- Instead of n checks, you do only about √n checks, then emit two results per hit.
+
+3. Small-Key RSA Factorization
+
+- In cryptanalysis of weak RSA keys (e.g. 32- or 64-bit), attackers use trial division up to √n to find one of the prime factors.
+
+- Even though √n is large for modern keys, for small educational keys this method works in minutes instead of centuries.
+
+4. Range-Sum Queries via √-Decomposition
+
+- Suppose you have an array of length N and need to answer “sum from L to R” queries, plus occasional updates.
+
+- By precomputing sums of blocks of size B = √N, each query can look at at most two partial blocks plus O(√N/B)=O(√N) whole-block sums—overall O(√N) per query.
+
+- This trades O(N) rebuilds for O(√N) queries and updates, a big win when N is huge but the number of queries is larger.
+
+5. Collision Detection in 2D Games
+
+- If you have N moving objects on a 2D map, naively checking every pair for overlap is O(N²).
+
+- Instead, divide the world into a √N×√N grid: on average, each object shares a cell with only O(√N) neighbors.
+
+- You only test collisions against those √N possible overlaps, yielding O(N·√N) overall or O(√N) per object.
+
+6. Five Real-World Software Use Cases of O(√n)
+Here are five concrete examples where production-grade software exploits √n algorithms to stay efficient:
+
+1. Cryptographic Key Validation (OpenSSL, BoringSSL)
+
+- What happens: When generating or validating RSA keys, the library does a quick trial-division pass over small prime candidates up to √n before switching to more advanced tests.
+
+- Why √n: Checking divisibility by every integer up to √n weeds out common composite keys extremely fast, avoiding the huge cost of full-fledged primality proofs on obviously non-prime numbers.
+
+2. Primality Checks in Math Libraries (Sympy, GMP)
+
+- What happens: Python’s Sympy and the GMP (C/C++) libraries implement an isprime(n) function that first does a loop
+
+```python
+for i in range(2, int(sqrt(n))+1):
+    if n % i == 0:
+        return False
+return True
+```
+
+- Why √n: This inexpensive pass catches most composites quickly. Only numbers that survive up to i·i > n need more expensive probabilistic or deterministic tests.
+
+3. Piece Tables / Ropes in Text Editors (VS Code, IntelliJ IDEA)
+
+- What happens: To support fast insertion, deletion, and substring operations on very large files, editors often break the document into chunks of size ~√N.
+
+- Why √n: Operations that need to scan or splice text only touch one or two chunks—O(√N) work—instead of re-writing the entire buffer of length N.
+
+4. Spatial Hashing for Collision Detection (Unity, Unreal Engine)
+
+- What happens: A scene with N objects is partitioned into a grid of roughly √N×√N cells. Each object is hashed into its cell, and collision checks are performed only among the handful of neighbors in that cell.
+
+- Why √n: Instead of O(N²) pairwise checks, each object looks at O(√N) potential collisions, yielding an overall O(N·√N) workload—vastly faster in dense scenes.
+
+5. √-Decomposition in Analytics / Time-Series Engines (Elasticsearch, ClickHouse)
+
+- What happens: To accelerate range-sum or point-update queries over a huge array of log data, the system divides the array into B = √N blocks and precomputes each block’s sum.
+
+- Why √n: Each query touches at most two partial blocks plus O(√N) whole blocks, giving O(√N) query time. That’s a big win when N is in the billions and queries arrive in real time.
+
+### In short: whenever your problem has a natural pairing or symmetry around √n, you can often reduce an O(n) scan to O(√n) by stopping your loop at `i * i <= n`. This simple trick turns billion-step loops into million-step loops—and that difference is huge in practice.
+
+# Quadratic Time Complexity (O(n²))
+When an algorithm’s running time grows in proportion to the square of its input size, we call it quadratic time, written O(n²). This often feels like the difference between “usable for hundreds” and “unusable beyond a few thousand.”
+
+1. When O(n²) arises
+- Nested loops over the same data set
+- Not when you run two independent loops back-to-back (that’s still O(n))
+- Typical pattern:
+```c++
+for (int i = 0; i < n; i++) {
+  for (int j = 0; j < n; j++) {
+    // constant-time work here
+  }
+}
+```
+  1. Outer loop: n iterations
+  2. Inner loop: n iterations per outer → n × n = n² total iterations
+
+2. Nested vs. Sequential Loops
+Pattern	                      Steps	      Complexity
+Two loops one after another:  n + n = 2n	  O(n)
+Two nested loops:	            n × n = n²	  O(n²)
+
+Key point: Only nested iterations multiply their costs.
+
+3. Calculating O(n²)
+- Count the loops: two loops over n → n×n steps.
+- Drop constants: 1·n² → O(n²).
+- Ignore lower-order terms: n² + 5n + 10 → O(n²).
+
+4. Five Practical Use Cases
+  1. Bubble Sort / Selection Sort
+  - Compare and possibly swap every pair in the list.
+  - ≈ n²/2 comparisons → O(n²).
+
+  2. Pairwise Distance Matrix
+  - Computing distances between every pair in a set of n points.
+  - Useful in small-scale clustering prototypes.
+
+  3. Naive String Matching
+  - For each position in the text (n) compare up to pattern length (m≈n) → O(n·m) ≈ O(n²).
+  
+  4. Checking All Pairs for Duplicates
+  - Compare each element to every other → O(n²).
+  - Common in small scripts or one-off data-cleaning tasks.
+
+  5. Matrix Multiplication (Naïve)
+  - Three nested loops, but if you fix one dimension equal to n, two loops dominate → O(n²) per output row (overall O(n³) for square matrices).
+
+5. Five Real-Life Software Use Cases
+
+  1. Spreadsheet “Find Duplicates” Macro
+  - A VBA macro that does two nested loops over all rows to highlight repeated entries.
+
+  2. Naïve CSV Join in a Script
+  - Python script that loads two small CSVs into lists and does nested loops to match keys, rather than using a hash or database join.
+
+  3. Basic Brute-Force Collision in Game Prototypes
+  - Early prototype in Unity or Godot where each object checks collision against every other object, fine for <100 entities.
+
+  4. Simple Recommendation Engine
+  - For a small set of items, compute similarity score between every pair to suggest “people who liked X also liked Y.”
+
+  5. Legacy UI Rendering Engines
+  - Older browsers or custom widgets that naïvely compare each style rule against each DOM element (n rules × n elements) before applying styles.
+
+### Conclusion
+
+Quadratic algorithms are intuitive and easy to implement but rapidly become impractical as n grows. Whenever you spot nested loops over the same data, ask:
+
+- Can I break the work apart?
+- Use hashing or sorting to reduce comparisons (e.g., from O(n²) to O(n log n) or O(n)).
+- Leverage data structures (sets, maps) or divide-and-conquer techniques to avoid the full n×n scan.
+
+Mastering the difference between O(n), O(n²), and beyond helps you choose the right approach—and keep your software running smoothly, even on large inputs.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
