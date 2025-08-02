@@ -564,18 +564,106 @@ Quadratic	              O(n²)	                        1000² = 1000000
 Takeaway: always strive for the lowest-order complexity you can—especially for large data—because what looks “small” at n=1000 explodes into impossibility at higher scales.
 
 
+# Calculating Real Running Time from Time Complexity
+Understanding how to turn a Big–O bound into an actual wall-clock estimate is crucial when you’re working under strict time limits (like 1 second per test). Let’s walk through a concrete example and see how to decide if your approach will finish in time.
 
+1. The 10⁷-Operations-Per-Second Rule of Thumb
 
+- Empirical fact: A single-threaded C++ program can safely be assumed to execute on the order of 10⁷ “basic operations” per second.
 
+- Conversion formula:
 
+estimated_time (s) ≈ estimated_operations/10^7
 
+ 
+2. Problem Statement (Codeforces-Style)
 
+```text
+Binary search
+Time limit per test 1 second
+Memory limit per test 256  mb
 
+Given 2 numbers N and Q, array A of N number and Q queries each one contains a number X.
+For each query print a single line that contains "found" if the number X exists in array A otherwise, print "not found".
 
+Input 
+First line contains two number N, Q(1<=N, Q<=10^5)
+Second line contains N numbers (1<=Ai<=10^9)
+next Q lines contains X(1<=X<=10^9)
 
+Output 
+Print the answer for each query in a single line. 
 
+Example
+input
+5 3
+1 5 4 3 2
+5
+3
+6
+Output
+found 
+found 
+not found
+```
+- Input limits
+  - N, Q up to 10⁵
+  - Array A of N integers
+  - Then Q queries, each a number X
+- Task
+  - For each X, print “found” if X ∈ A, else “not found.”
+- Constraints
+  - Time limit: 1 second
+  - Memory limit: 256 MB
 
+3. Brute-Force Solution (O(N·Q))
 
+```cpp
+// Read N, Q, and A[]
+int N, Q;
+cin >> N >> Q;
+vector<int> A(N);
+for (int i = 0; i < N; i++) cin >> A[i];
+
+// For each query, scan the entire array
+while (Q--) {
+    int X; 
+    cin >> X;
+    bool found = false;
+    for (int i = 0; i < N; i++) {
+        if (A[i] == X) {
+            found = true;
+            break;
+        }
+    }
+    cout << (found ? "found\n" : "not found\n");
+}
+```
+
+- Work per query: up to N comparisons
+- Total work: N comparisons × Q queries → O(N·Q)
+
+4. Estimating the Operation Count
+- Worst-case N = Q = 10⁵
+- Comparisons ≈ 10⁵ × 10⁵ = 10¹⁰
+- Time ≈ 10¹⁰ / 10⁷ = 10³ seconds ≈ 16.7 minutes
+
+Clearly, Brute-Force (O(N·Q)) will not finish under a 1 second limit when N and Q are at their maximum.
+
+5. Conclusion: Pick a Faster Algorithm
+Because brute-force is too slow, we need something like Binary Search:
+
+- Sort A in O(N log N) → ~10⁵·17 = 1.7·10⁶ ops
+- Answer each query in O(log N) → 10⁵·17 = 1.7·10⁶ ops
+- Total ≈ 3.4·10⁶ ops → 0.34 s
+
+This fits comfortably within a 1 second time limit.
+
+### Key Takeaway
+
+- Translate your Big-O into an estimated operation count using the input bounds.
+- Divide by 10⁷ ops / s to predict seconds needed.
+- Decide if that meets your time limit—if not, choose a more efficient algorithm!
 
 
 
