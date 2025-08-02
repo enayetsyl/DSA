@@ -534,6 +534,43 @@ for (int i = 0; i < n; i++) {       // O(n) outer loop
 Linearithmic complexity sits at the sweet spot between simple linear scans and more expensive quadratic routines. Whenever you can structure your algorithm to do a logarithmic-time subtask inside a linear sweep—or apply divide-and-conquer—the result is O(n log n). These algorithms power everything from efficient sorting and search to advanced signal processing and database engines, making them a fundamental tool in any software engineer’s toolkit.
 
 
+# Comparison of best worst complexity
+
+### Comparison of Operation Counts for n = 1000
+
+Complexity	            Big-O	                  Approx. Work (n = 1000)
+Constant	              O(1)	                        1
+Logarithmic	            O(log n)	                    log₂(1000) ≈ 10
+Square-Root	            O(√n)	                        √1000 ≈ 32
+Linear	                O(n)	                        1000
+Linearithmic	          O(n log n)	                  1000·10 = 10000
+Quadratic	              O(n²)	                        1000² = 1000000
+
+### Ordering from “Fastest” to “Slowest” (for n = 1000)
+
+- Constant (1)
+- Logarithmic (~10)
+- Square-Root (~32)
+- Linear (1000)
+- Linearithmic (10000)
+- Quadratic (1000000)
+
+### Conclusion
+
+- Best-case algorithms (O(1), O(log n), O(√n)) remain extremely fast even as n grows—adding another factor of 10 or 100 makes almost no practical difference.
+- Middle-of-the-road (O(n), O(n log n)) scale well for moderate n but can become noticeable at very large inputs.
+- Worst-case (O(n²) and above) quickly become infeasible: at n = 10⁶, a quadratic algorithm would need ~10¹² steps—far beyond any real machine’s capability.
+
+Takeaway: always strive for the lowest-order complexity you can—especially for large data—because what looks “small” at n=1000 explodes into impossibility at higher scales.
+
+
+
+
+
+
+
+
+
 
 
 
